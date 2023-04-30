@@ -1,0 +1,5 @@
+INDEX VERSION 1.131+E:\phan mem\HoangThiAnhXuan_22130333_DH22DTA\.metadata\.plugins\org.eclipse.jdt.core
+533816756.index
+3350827775.index
+1610538996.index
+1865797976.index

@@ -1,0 +1,240 @@
+package BT22;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+
+public class MyPanel1 extends JPanel {
+	public static final int NO_SHAPE = 0;
+	public static final int RECTANGLE = 1;
+	public static final int OVAL = 2;
+	public static final int LINE = 3;
+
+	JPanel topPanel, rightPanel, botPanel, drawPanel;
+	JButton clearButt, redButt, ovalButt, rectButton, lineButton, blueButton, yellowButon, greenButton;
+	JRadioButton fillRadio;
+
+	Color color;
+	int type;
+
+	boolean started;
+
+	ArrayList<Shape> shapes;
+
+	public MyPanel1() {
+		setLayout(new BorderLayout());
+		color = Color.black;
+		type = NO_SHAPE;
+		shapes = new ArrayList<Shape>();
+		started = false;
+
+		topPanel = new TopPanel();
+		rightPanel = new RightPanel();
+		botPanel = new BottomPanel();
+		drawPanel = new DrawPanel();
+
+		add(topPanel, BorderLayout.NORTH);
+		add(rightPanel, BorderLayout.EAST);
+		add(drawPanel, BorderLayout.CENTER);
+		add(botPanel, BorderLayout.SOUTH);
+	}
+
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public class TopPanel extends JPanel {
+		public TopPanel() {
+//			setLayout(new FlowLayout());
+			setBackground(Color.pink);
+
+			// Rectangle button
+			rectButton = new JButton("Rect");
+			rectButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					type = RECTANGLE;
+				}
+			});
+			add(rectButton);
+
+			// Oval Button
+			ovalButt = new JButton("Oval");
+			ovalButt.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					type = OVAL;
+				}
+			});
+			add(ovalButt);
+
+			// LineButton
+			lineButton = new JButton("Line");
+			lineButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					type = LINE;
+				}
+			});
+			add(lineButton);
+
+			// RadioButtonFill
+			fillRadio = new JRadioButton("Fill");
+			add(fillRadio);
+
+		}
+	}
+
+	class RightPanel extends JPanel {
+		public RightPanel() {
+			setLayout(new GridLayout(5, 1, 0, 20));
+			setBackground(Color.pink);
+			clearButt = new JButton("Clear all");
+			add(clearButt);
+
+			// Color
+			add(createColorPanel());
+
+		}
+
+		public JPanel createColorPanel() {
+			JPanel colorPanel = new JPanel();
+			colorPanel.setLayout(new GridLayout(2, 2));
+
+			redButt = new JButton();
+			redButt.setBackground(Color.red);
+			redButt.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					color = Color.red;
+
+				}
+			});
+			colorPanel.add(redButt);
+
+			blueButton = new JButton();
+			blueButton.setBackground(Color.blue);
+			blueButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					color = Color.BLUE;
+				}
+			});
+			colorPanel.add(blueButton);
+
+			yellowButon = new JButton();
+			yellowButon.setBackground(Color.yellow);
+			yellowButon.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					color = Color.yellow;
+				}
+			});
+			colorPanel.add(yellowButon);
+
+			greenButton = new JButton();
+			greenButton.setBackground(Color.green);
+			greenButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					color = Color.green;
+				}
+			});
+			colorPanel.add(greenButton);
+
+			return colorPanel;
+		}
+	}
+
+	class BottomPanel extends JPanel {
+		JLabel label;
+
+		public BottomPanel() {
+			setBackground(Color.pink);
+			label = new JLabel("DRAWING...");
+			label.setFont(new Font(null, 1, 15));
+			add(label);
+		}
+	}
+
+	class DrawPanel extends JPanel {
+		public DrawPanel() {
+			setBackground(Color.lightGray);
+
+			addMouseListener(new MouseAdapter() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (e.getButton() == MouseEvent.BUTTON1) {
+						if (type == NO_SHAPE) {
+							return;
+						}
+						if (!started) {
+							started = true;
+							switch (type) {
+							case RECTANGLE: {
+								shapes.add(new RecTangle(new Point1(e.getX(), e.getY()), color, type,
+										fillRadio.isSelected()));
+								break;
+							}
+							case OVAL: {
+								shapes.add(
+										new Oval(new Point1(e.getX(), e.getY()), color, type, fillRadio.isSelected()));
+								break;
+							}
+							case LINE: {
+								shapes.add(
+										new Line(new Point1(e.getX(), e.getY()), color, type, fillRadio.isSelected()));
+								break;
+							}
+							}
+						}
+//						} else {
+//							started = false;
+//							Shape s = shapes.get(shapes.size() - 1);
+//							s.resize(new Point1(e.getX(), e.getY()));
+//							repaint();
+//						}
+					} else {
+						started = false;
+					}
+				}
+
+			});
+			addMouseMotionListener(new MouseAdapter() {
+				public void mouseMoved (MouseEvent e) {
+					if (started) {
+						Shape s = shapes.get(shapes.size()-1);
+						s.resize(new Point1(e.getX(), e.getY()));
+						repaint();
+					}
+				}
+			});
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			for (Shape s : shapes) {
+				g.setColor(s.color);
+				s.draw(g);
+			}
+		}
+	}
+}
